@@ -29,7 +29,7 @@ class CONSTANTS(Enum):
     CELL_PADDING = 2
     GAME_WIDTH = 48
     GAME_HEIGHT = 16
-    FRAME_TIME = 1 # (seconds)    
+    FRAME_TIME_MS = 1000 # (millseconds)    
     
 # ----------------------------------------------------------------------------------------
 # Cell Object represents a single square and is alive or dead 
@@ -69,44 +69,34 @@ def main():
 class GameOfLifeApp:
 
     def updateTime(self, lblTime):
-        #print(self.gameState.name)      #   OK
-        print("ut: # {}".format(self.counter))
+        #print(vars(self))
+        #print("\n")
+        #print(self.gameState.name)              # OK
+        #print("ut: # {}".format(self.counter))  # OK
         if (self.gameState == GAME_STATE.RUN):
-            self.counter = self.counter + 1
+            self.counter += 1
             mins,seconds = divmod(self.counter, 60)
-            print(mins)
-            print(seconds)
-            self.lblTime.config(text="{}:{}".format(mins,seconds))
-#            self.lblTime.after(50, self.updateTime(self.lblTime))
+            print("time: {:0>2d}mins, {:0>2d}seconds".format(mins, seconds))
+            lblTime.config(text="{:0>2d}:{:0>2d}".format(mins,seconds))
+            self.window.after(CONSTANTS.FRAME_TIME_MS.value, self.updateTime, self.lblTime)
 
-    # TODO: try to use parameters, so I don't have to reference self.objects
-    #       when I tried, I could update locally, but doesn't propagate back.
-    #       seems to work with the "counter_label", for some reason.
     def toggleRunButton(self, gameState, button):
-        print ("trb:" + gameState.name + " " + button.cget('text'))
         match gameState:
             case GAME_STATE.EMPTY:
                 print ("Empty")
             case GAME_STATE.STOP:
-                self.btnRun.config(text="Stop")
-                self.gameState = GAME_STATE.RUN
-                print(self.lblTime.cget('text'))
+                button.config(text = "Stop")
+                self.counter = 0
+                self.gameState = GAME_STATE.RUN                                
                 self.updateTime(self.lblTime)
             case GAME_STATE.RUN:
+                button.config(text = "Run")
                 self.btnRun.config(text="Run")
                 self.gameState = GAME_STATE.STOP
             case _:
                 print ("Impossible")
                 self.gameState = GAME_STATE.EMPTY
-        print("locals state=" + gameState.name + " button = " + button.cget('text'))
-        print("self state  =" + self.gameState.name + " button = " + self.btnRun.cget('text'))
-
-    def counter_label(self,label):
-        def count():
-            self.counter += 1
-            label.config(text=str(self.counter))
-            label.after(1000, count)
-        count() 
+        print ("trb:" + gameState.name + " " + button.cget('text'))
 
     def __init__(self):
         self.gameState = GAME_STATE.STOP
@@ -115,18 +105,23 @@ class GameOfLifeApp:
         self.width = CONSTANTS.GAME_WIDTH.value
         self.cellSize = CONSTANTS.CELL_SIZE.value
 
-        # Main Window                
-        self.window = tk.Tk()
-        self.window.title("Conway's Game of Life")
+        print("================ Conway's Game of Life by Steve Schilz ===================") 
         print("TKInter Versions {:.1f} {:.1f} ".format(tk.TclVersion,tk.TkVersion))
         print("Game State: " + self.gameState.name)
         print("Game Size:  (" + str(self.width) + "," + str(self.height) + ")")
 
+        # Main Window                
+        self.window = tk.Tk()
+        self.window.title("Conway's Game of Life")
+        
+
         # Top of screen: Two Images
         self.imgLogo = tk.PhotoImage(file="../Images/Trefoil_knot_conways_game_of_life.gif").zoom(x=1)
-        self.lblLogo = tk.Label(self.window, image=self.imgLogo).grid(row=0, column=0)
+        self.lblLogo = tk.Label(self.window, image=self.imgLogo)
+        self.lblLogo.grid(row=0, column=0)
         self.imgLogo2 = tk.PhotoImage(file="../Images/gameOfLife.png").zoom(x=1)
-        self.lblLogo2 = tk.Label(self.window, image=self.imgLogo2).grid(row=0, column=1)
+        self.lblLogo2 = tk.Label(self.window, image=self.imgLogo2)
+        self.lblLogo2.grid(row=0, column=1)
         
         # Create Game Frame
         self.frameGame=tk.Frame(master=self.window)
@@ -139,22 +134,17 @@ class GameOfLifeApp:
         for i in range(0, self.height+1):
             for j in range(0, self.width+1):
                 self.cells.insert(i*self.height+j, Cell(self.frameGame, i, j))    
-                #print ("(" + str(i) + "," + str(j) +")")                
-            #print ("/n")
 
         # Bottom = Controls and Buttons
         self.lblTime = tk.Label(self.window, text = "0:00")
         self.lblTime.grid(row=2, column=0)
-
-        self.lblCounter = tk.Label(self.window, fg="dark green")
-        self.counter_label(self.lblCounter)
-        self.lblCounter.grid(row=2, column=1)
         
         self.btnRun = tk.Button(self.window, text="Run") #,command=toggleRunButton)
         self.btnRun.config(command=lambda:self.toggleRunButton(self.gameState, self.btnRun))
         self.btnRun.grid(row=2, column=2)
         
-        self.btnQuit = tk.Button(self.window, text = "quit()", command=quit, fg="red").grid(row=2, column=3)
+        self.btnQuit = tk.Button(self.window, text = "quit()", command=quit, fg="red")
+        self.btnQuit.grid(row=2, column=3)
         
 if __name__ == "__main__":
     main()
