@@ -68,7 +68,7 @@ class Cell:
         self.frame.config(bg=str(COLORS.DEAD.value))
         self.frame.bind("<Button-1>", self.onClick)
         self.frame.grid(row=rowIdx, column=colIdx, padx=CONSTANTS.CELL_PADDING.value, pady=CONSTANTS.CELL_PADDING.value)
-        print ("Created Cell [{:d},{:d}]".format(rowIdx, colIdx))
+        #print ("Created Cell [{:d},{:d}]".format(rowIdx, colIdx))
 
 def main():
     gol = GameOfLifeApp()
@@ -92,7 +92,7 @@ class GameOfLifeApp:
                 result = True
         else:
             result = False
-#        print ("Cell {:>02d},{:>02d}] lives is {})".format(i, j, str(result))
+        #print ("Cell {:>02d},{:>02d}] lives is {})".format(i, j, str(result))
         return result
 
     def getCell(self, i, j):
@@ -126,16 +126,14 @@ class GameOfLifeApp:
                             continue
                             
                         neighborCell = self.getCell(i+rowAdj, j+colAdj)
-                #        print ("Neighbor Cell[{:>02d},{:>02d}] is {:s}".format(i+rowAdj,j+colAdj,neighborCell.state.name))
+                        #print ("Neighbor Cell[{:>02d},{:>02d}] is {:s}".format(i+rowAdj,j+colAdj,neighborCell.state.name))
                         if self.getCell(i+rowAdj,j+colAdj).state == CELL_STATE.ALIVE:
                             neighborCount += 1
 
-                # print ("cell[{:>02d},{:>02d}], id {:s} neighborCount = {:d}\n".format(i,j,curCell.state.name,neighborCount))
+                #print ("cell[{:>02d},{:>02d}], id {:s} neighborCount = {:d}\n".format(i,j,curCell.state.name,neighborCount))
                 if (self.doesCellLive(curCell, neighborCount)):
-                    print("    cell lives!")
                     curCell.newState = CELL_STATE.ALIVE
                 else:
-                    print("    cell Dies!")
                     curCell.newState = CELL_STATE.DEAD
 
         # second pass: update cell states        
@@ -157,7 +155,6 @@ class GameOfLifeApp:
         if (self.gameState == GAME_STATE.RUN):
             self.counter += 1
             mins,seconds = divmod(self.counter, 60)
-            print("time: {:0>2d}mins, {:0>2d}seconds".format(mins, seconds))
             lblTime.config(text="{:0>2d}:{:0>2d}".format(mins,seconds))
 
             self.updateAllCells()
@@ -178,9 +175,8 @@ class GameOfLifeApp:
                 self.btnRun.config(text="Run")
                 self.gameState = GAME_STATE.STOP
             case _:
-                print ("Impossible")
                 self.gameState = GAME_STATE.EMPTY
-        print ("trb:" + gameState.name + " " + button.cget('text'))
+        #print ("trb:" + gameState.name + " " + button.cget('text'))
 
     def __init__(self):
         self.gameState = GAME_STATE.STOP
@@ -218,7 +214,6 @@ class GameOfLifeApp:
         # Fill in the game board
         self.cells = [[]]
         self.initCells()
-        self.printAllCells()
         
         # Bottom = Controls and Buttons
         self.lblTime = tk.Label(self.window, text = "0:00")
