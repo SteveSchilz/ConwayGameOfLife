@@ -1,3 +1,4 @@
+import sys
 import tkinter as tk
 from tkinter import ttk
 from enum import Enum
@@ -95,8 +96,7 @@ class GameOfLifeApp:
         return result
 
     def getCell(self, i, j):
-        
-        return self.cells[ (i*self.cellWidth+2) + j]
+        return self.cells[ i*(self.cellWidth+2) + j]
         
         
     def initCells(self):
@@ -106,7 +106,7 @@ class GameOfLifeApp:
         # remember range does not include last number, so add one
         for i in range(0, actualHeight):
             for j in range(0, actualWidth):
-                self.cells.insert((i*actualHeight)+j, Cell(self.frameGame, i, j))    
+                self.cells.insert((i*actualWidth)+j, Cell(self.frameGame, i, j))    
 
     #
     # updateAllCells - goes through array and updates cell states
@@ -143,8 +143,7 @@ class GameOfLifeApp:
             for j in range(1, self.cellWidth+1):
                 
                 curCell = self.getCell(i, j)
-                if stopAfterOne == False:
-                    curCell.updateCellState(curCell)
+                curCell.updateCellState(curCell)
 
 
     #
@@ -162,8 +161,7 @@ class GameOfLifeApp:
             lblTime.config(text="{:0>2d}:{:0>2d}".format(mins,seconds))
 
             self.updateAllCells()
-            if stopAfterOne == False:
-                self.window.after(CONSTANTS.FRAME_TIME_MS.value, self.updateTime, self.lblTime)
+            self.window.after(CONSTANTS.FRAME_TIME_MS.value, self.updateTime, self.lblTime)
                 
 
     def toggleRunButton(self, gameState, button):
@@ -191,7 +189,9 @@ class GameOfLifeApp:
         self.cellWidth = CONSTANTS.GAME_WIDTH.value
         self.cellSize = CONSTANTS.CELL_SIZE.value
 
-        print("================ Conway's Game of Life by Steve Schilz ===================") 
+        print("================ Conway's Game of Life by Steve Schilz ===================")
+        print("Python Version {:s}".format(sys.version))
+        print(sys.version_info)
         print("TKInter Versions {:.1f} {:.1f} ".format(tk.TclVersion,tk.TkVersion))
         print("Game State: " + self.gameState.name)
         print("Game Size:  (" + str(self.cellWidth) + "," + str(self.cellHeight) + ")")
@@ -224,7 +224,7 @@ class GameOfLifeApp:
         self.lblTime = tk.Label(self.window, text = "0:00")
         self.lblTime.grid(row=2, column=0)
         
-        self.btnRun = tk.Button(self.window, text="Run") #,command=toggleRunButton)
+        self.btnRun = tk.Button(self.window, text="Run")
         self.btnRun.config(command=lambda:self.toggleRunButton(self.gameState, self.btnRun))
         self.btnRun.grid(row=2, column=1)
         
