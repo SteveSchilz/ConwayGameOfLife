@@ -30,7 +30,7 @@ class CONSTANTS(Enum):
     CELL_PADDING = 2        # Gui Padding around cells
     GAME_WIDTH = 48         # width of active (non-border) cells
     GAME_HEIGHT = 16        # height of active (non-border cells)
-    FRAME_TIME_MS = 500     # (milliseconds)
+    FRAME_TIME_MS = 100     # (milliseconds)
     BORDER_CELLS = 1        # Number of non-active(clickable) cells around the border
 
 # ----------------------------------------------------------------------------------------
@@ -38,12 +38,13 @@ class CONSTANTS(Enum):
 # ----------------------------------------------------------------------------------------
 class Cell:
 
-    def updateCellState(self, cell):
-        cell.state = cell.newState
-        if (cell.state == CELL_STATE.ALIVE):
-            cell.frame.config(bg=str(COLORS.ALIVE.value))
-        elif cell.state == CELL_STATE.DEAD:
-           cell.frame.config(bg=str(COLORS.DEAD.value))
+    def updateCellState(self):
+        if self.state != self.newState:
+            self.state = self.newState
+            if self.state == CELL_STATE.ALIVE:
+                self.frame.config(bg=str(COLORS.ALIVE.value))
+            else:
+                self.frame.config(bg=str(COLORS.DEAD.value))
 
 
     def onClick(self, event):
@@ -71,11 +72,6 @@ class Cell:
         self.frame.grid(row=rowIdx, column=colIdx, padx=CONSTANTS.CELL_PADDING.value, pady=CONSTANTS.CELL_PADDING.value)
         #print ("Created Cell [{:d},{:d}]".format(rowIdx, colIdx))
 
-def main():
-    gol = GameOfLifeApp()
-    gol.window.mainloop()
-        
-
 # ----------------------------------------------------------------------------------------
 # Main App Class: Game of Life App 
 # ----------------------------------------------------------------------------------------
@@ -96,8 +92,6 @@ class GameOfLifeApp:
         #print ("Cell {:>02d},{:>02d}] lives is {})".format(i, j, str(result))
         return result
 
-    def getCell(self, i, j):
-        return self.cells[ i ][ j ]
 
     def initCells(self):
         return [[Cell(self.frameGame, i, j) for j in range(self.cellWidth)] for i in range(self.cellHeight)]
@@ -113,7 +107,7 @@ class GameOfLifeApp:
         for i in range(0, self.cellHeight):
             for j in range(0, self.cellWidth):
                 neighborCount = 0
-                curCell = self.getCell(i, j)
+                curCell = self.cells[i][j]
                 for rowAdj in range(-1, 2):
                     for colAdj in range(-1,2):
                         # skip ourselves
@@ -124,7 +118,7 @@ class GameOfLifeApp:
                            j+colAdj < 0 or j+colAdj >= self.cellWidth:
                             continue
 
-                        neighborCell = self.getCell(i+rowAdj, j+colAdj)
+                        neighborCell = self.cells[i+rowAdj][j+colAdj]
                         if neighborCell.state == CELL_STATE.ALIVE:
                             neighborCount += 1
                             #print ("Neighbor Cell[{:>02d},{:>02d}] is {:s}".format(i+rowAdj,j+colAdj,neighborCell.state.name))
@@ -138,8 +132,7 @@ class GameOfLifeApp:
         # second pass: update cell states        
         for i in range(0, self.cellHeight):
             for j in range(0, self.cellWidth):
-                curCell = self.getCell(i, j)
-                curCell.updateCellState(curCell)
+                self.cells[i][j].updateCellState()
 
     #
     # This is timer tick, happens once per second
@@ -181,8 +174,7 @@ class GameOfLifeApp:
         for i in range(0, self.cellHeight):
             for j in range(0, self.cellWidth):
                 self.cells[i][j].newState = CELL_STATE.DEAD
-                curCell = self.getCell(i, j)
-                curCell.updateCellState(curCell)
+                self.cells[i][j].updateCellState()
 
     def gospers_gun(self, origin_row, origin_col):
         points = [ [5,1], [5,2],[6,1], [6,2],
@@ -200,10 +192,10 @@ class GameOfLifeApp:
                    [4,35], [4,36]
                  ]
         for cellIdx in points:
-            print(cellIdx[0], cellIdx[1])
-            curCell = self.getCell(cellIdx[0]+origin_row, cellIdx[1]+origin_col)
+            # print(cellIdx[0], cellIdx[1])
+            curCell = self.cells[cellIdx[0]+origin_row] [cellIdx[1]+origin_col] #self.getCell(cellIdx[0]+origin_row, cellIdx[1]+origin_col)
             curCell.newState = CELL_STATE.ALIVE
-            curCell.updateCellState(curCell)
+            curCell.updateCellState()
 
     def toggleRunButton(self, gameState, button):
         match gameState:
@@ -281,8 +273,11 @@ class GameOfLifeApp:
         self.btnQuit = tk.Button(self.window, text = "quit()", command=quit, fg="red")
         self.btnQuit.grid(row=2, column=5)
 
-        
-        
+def main():
+    gol = GameOfLifeApp()
+    gol.window.mainloop()
+
+
 if __name__ == "__main__":
     main()
     
