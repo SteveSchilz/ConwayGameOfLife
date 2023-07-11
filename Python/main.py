@@ -184,6 +184,27 @@ class GameOfLifeApp:
                 curCell = self.getCell(i, j)
                 curCell.updateCellState(curCell)
 
+    def gospers_gun(self, origin_row, origin_col):
+        points = [ [5,1], [5,2],[6,1], [6,2],
+                   [4,12], [3,13], [3,14], [4,16],
+                   [5,11], [6,11], [7,11],
+                   [5,17], [6,17], [7,17],
+                   [8,12], [9,13], [9,14],
+                   [6,15], [6,18],
+                   [8,16],
+                   [2,23], [2,25], [1,25],
+                   [3,21], [4,21], [5,21],
+                   [3,22], [4,22], [5,22],
+                   [6,23], [6,25], [7,25],
+                   [3,35], [3,36],
+                   [4,35], [4,36]
+                 ]
+        for cellIdx in points:
+            print(cellIdx[0], cellIdx[1])
+            curCell = self.getCell(cellIdx[0]+origin_row, cellIdx[1]+origin_col)
+            curCell.newState = CELL_STATE.ALIVE
+            curCell.updateCellState(curCell)
+
     def toggleRunButton(self, gameState, button):
         match gameState:
             case GAME_STATE.EMPTY:
@@ -226,13 +247,13 @@ class GameOfLifeApp:
         self.lblLogo.grid(row=0, column=0)
         self.imgLogo2 = tk.PhotoImage(file="../Images/gameOfLife.png").zoom(x=1)
         self.lblLogo2 = tk.Label(self.window, image=self.imgLogo2)
-        self.lblLogo2.grid(row=0, column=1, columnspan=4)
+        self.lblLogo2.grid(row=0, column=1, columnspan=5)
         
         # Create Game Frame
         self.frameGame=tk.Frame(master=self.window)
         self.frameGame.config(height=self.cellHeight*self.cellSize, width=self.cellWidth*self.cellSize)
         self.frameGame.config(bg="gainsboro")
-        self.frameGame.grid(row=1, column=0, columnspan=5, padx=1, pady=1) 
+        self.frameGame.grid(row=1, column=0, columnspan=6, padx=1, pady=1)
 
         # Fill in the game board
         self.cells = self.initCells()
@@ -253,8 +274,12 @@ class GameOfLifeApp:
         self.btnClear.config(command=lambda:self.clear())
         self.btnClear.grid(row=2, column=3)
 
+        self.btnGosper = ttk.Button(self.window, text = "gosper")
+        self.btnGosper.config(command=lambda:self.gospers_gun(3,5))
+        self.btnGosper.grid(row=2, column=4)
+
         self.btnQuit = tk.Button(self.window, text = "quit()", command=quit, fg="red")
-        self.btnQuit.grid(row=2, column=4)
+        self.btnQuit.grid(row=2, column=5)
 
         
         
