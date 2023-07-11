@@ -141,28 +141,53 @@ class GameOfLifeApp:
                 curCell = self.getCell(i, j)
                 curCell.updateCellState(curCell)
 
-
     #
     # This is timer tick, happens once per second
+    #
+    # parameters: 
+    #    self = GameApp object
+    #    lblTime = tkinter button showing current time
+    #    keepRunning = Boolean (True to keep running, false to single step)
     #
     def updateTime(self, lblTime):
         #print(vars(self))
         #print("\n")
         #print(self.gameState.name)              # OK
         #print("ut: # {}".format(self.counter))  # OK
-        if (self.gameState == GAME_STATE.RUN):
-            self.counter += 1
-            mins,seconds = divmod(self.counter, 60)
-            lblTime.config(text="{:0>2d}:{:0>2d}".format(mins,seconds))
+        self.counter += 1
+        mins,seconds = divmod(self.counter, 60)
+        lblTime.config(text="{:0>2d}:{:0>2d}".format(mins,seconds))
 
-            self.updateAllCells()
+        self.updateAllCells()
+        if (self.gameState == GAME_STATE.RUN):
             self.window.after(CONSTANTS.FRAME_TIME_MS.value, self.updateTime, self.lblTime)
-                
+
+    # stepTime function single steps game
+    def stepTime(self, gameState, increment):
+        if increment == 0:
+            return
+        match gameState:
+            case GAME_STATE.EMPTY:
+                pass
+            case GAME_STATE.STOP:
+                self.counter += increment
+                self.updateTime(self.lblTime)
+            case GAME_STATE.RUN:
+                pass
+            case _:
+                pass
+
+    def clear(self):
+        for i in range(0, self.cellHeight):
+            for j in range(0, self.cellWidth):
+                self.cells[i][j].newState = CELL_STATE.DEAD
+                curCell = self.getCell(i, j)
+                curCell.updateCellState(curCell)
 
     def toggleRunButton(self, gameState, button):
         match gameState:
             case GAME_STATE.EMPTY:
-                print ("Empty")
+                pass
             case GAME_STATE.STOP:
                 button.config(text = "Stop")
                 self.counter = 0
@@ -201,7 +226,7 @@ class GameOfLifeApp:
         self.lblLogo.grid(row=0, column=0)
         self.imgLogo2 = tk.PhotoImage(file="../Images/gameOfLife.png").zoom(x=1)
         self.lblLogo2 = tk.Label(self.window, image=self.imgLogo2)
-        self.lblLogo2.grid(row=0, column=1, columnspan=2)
+        self.lblLogo2.grid(row=0, column=1, columnspan=4)
         
         # Create Game Frame
         self.frameGame=tk.Frame(master=self.window)
@@ -219,9 +244,18 @@ class GameOfLifeApp:
         self.btnRun = tk.Button(self.window, text="Run")
         self.btnRun.config(command=lambda:self.toggleRunButton(self.gameState, self.btnRun))
         self.btnRun.grid(row=2, column=1)
-        
+
+        self.btnStepFwd = ttk.Button(self.window, text = "Step")
+        self.btnStepFwd.config(command=lambda:self.stepTime(self.gameState, +1))
+        self.btnStepFwd.grid(row=2, column=2)
+
+        self.btnClear = ttk.Button(self.window, text = "Clear")
+        self.btnClear.config(command=lambda:self.clear())
+        self.btnClear.grid(row=2, column=3)
+
         self.btnQuit = tk.Button(self.window, text = "quit()", command=quit, fg="red")
-        self.btnQuit.grid(row=2, column=2)
+        self.btnQuit.grid(row=2, column=4)
+
         
         
 if __name__ == "__main__":
