@@ -26,12 +26,13 @@ class COLORS(str, Enum):
     DEAD = "gray93"
 
 class CONSTANTS(Enum):
-    CELL_SIZE = 20
-    CELL_PADDING = 2
-    GAME_WIDTH = 48
-    GAME_HEIGHT = 16
-    FRAME_TIME_MS = 1000 # (millseconds)    
-    
+    CELL_SIZE = 20          # Gui Size of cells in pixels
+    CELL_PADDING = 2        # Gui Padding around cells
+    GAME_WIDTH = 48         # width of active (non-border) cells
+    GAME_HEIGHT = 16        # height of active (non-border cells)
+    FRAME_TIME_MS = 500     # (milliseconds)
+    BORDER_CELLS = 1        # Number of non-active(clickable) cells around the border
+
 # ----------------------------------------------------------------------------------------
 # Cell Object represents a single square and is alive or dead 
 # ----------------------------------------------------------------------------------------
@@ -96,17 +97,10 @@ class GameOfLifeApp:
         return result
 
     def getCell(self, i, j):
-        return self.cells[ i*(self.cellWidth+2) + j]
-        
-        
+        return self.cells[ i ][ j ]
+
     def initCells(self):
-        # game board includes extra border outside of play area
-        actualHeight = self.cellHeight+2
-        actualWidth = self.cellWidth+2
-        # remember range does not include last number, so add one
-        for i in range(0, actualHeight):
-            for j in range(0, actualWidth):
-                self.cells.insert((i*actualWidth)+j, Cell(self.frameGame, i, j))    
+        return [[Cell(self.frameGame, i, j) for j in range(self.cellWidth)] for i in range(self.cellHeight)]
 
     #
     # updateAllCells - goes through array and updates cell states
@@ -115,20 +109,25 @@ class GameOfLifeApp:
     #
     def updateAllCells(self):
 
-        # first pass: populate newStates        
-        for i in range(1, self.cellHeight+1):
-            for j in range(1, self.cellWidth+1):
+        # first pass: populate newStates
+        for i in range(0, self.cellHeight):
+            for j in range(0, self.cellWidth):
                 neighborCount = 0
                 curCell = self.getCell(i, j)
                 for rowAdj in range(-1, 2):
                     for colAdj in range(-1,2):
+                        # skip ourselves
                         if rowAdj == 0 and colAdj == 0:
                             continue
-                            
+                        # skip indexes that are outside of array bounds
+                        if i+rowAdj < 0 or i+rowAdj >= self.cellHeight or \
+                           j+colAdj < 0 or j+colAdj >= self.cellWidth:
+                            continue
+
                         neighborCell = self.getCell(i+rowAdj, j+colAdj)
-                        #print ("Neighbor Cell[{:>02d},{:>02d}] is {:s}".format(i+rowAdj,j+colAdj,neighborCell.state.name))
-                        if self.getCell(i+rowAdj,j+colAdj).state == CELL_STATE.ALIVE:
+                        if neighborCell.state == CELL_STATE.ALIVE:
                             neighborCount += 1
+                            #print ("Neighbor Cell[{:>02d},{:>02d}] is {:s}".format(i+rowAdj,j+colAdj,neighborCell.state.name))
 
                 #print ("cell[{:>02d},{:>02d}], id {:s} neighborCount = {:d}\n".format(i,j,curCell.state.name,neighborCount))
                 if (self.doesCellLive(curCell, neighborCount)):
@@ -137,9 +136,8 @@ class GameOfLifeApp:
                     curCell.newState = CELL_STATE.DEAD
 
         # second pass: update cell states        
-        for i in range(1, self.cellHeight+1):
-            for j in range(1, self.cellWidth+1):
-                
+        for i in range(0, self.cellHeight):
+            for j in range(0, self.cellWidth):
                 curCell = self.getCell(i, j)
                 curCell.updateCellState(curCell)
 
@@ -181,8 +179,8 @@ class GameOfLifeApp:
     def __init__(self):
         self.gameState = GAME_STATE.STOP
         self.counter = 0
-        self.cellHeight = CONSTANTS.GAME_HEIGHT.value
-        self.cellWidth = CONSTANTS.GAME_WIDTH.value
+        self.cellHeight = CONSTANTS.GAME_HEIGHT.value + CONSTANTS.BORDER_CELLS.value*2
+        self.cellWidth = CONSTANTS.GAME_WIDTH.value + CONSTANTS.BORDER_CELLS.value*2
         self.cellSize = CONSTANTS.CELL_SIZE.value
 
         print("================ Conway's Game of Life by Steve Schilz ===================")
@@ -212,8 +210,7 @@ class GameOfLifeApp:
         self.frameGame.grid(row=1, column=0, columnspan=5, padx=1, pady=1) 
 
         # Fill in the game board
-        self.cells = [[]]
-        self.initCells()
+        self.cells = self.initCells()
         
         # Bottom = Controls and Buttons
         self.lblTime = tk.Label(self.window, text = "0:00")
