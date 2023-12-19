@@ -3,7 +3,9 @@
 
 This is a simple, ground up implementation of Conway's Game of Life, which is a simple 
 simulation that depicts "cells" that live or die based on how many neighbors they have as time progresses. 
- 
+
+![ConwayScreenshot](./Documentation/ConwayScreenshot.png)
+
 The game can be fully described in a few short rules, however, surprisingly complex
 behaviors can result, a phenomenon known as "emergent behavior."
 
@@ -25,7 +27,7 @@ The universe of the Game of Life is an infinite, two-dimensional orthogonal grid
   * All other live cells die in the next generation. Similarly, all other dead cells stay dead.
 
  **Other Requirements**
- 
+
   * The initial pattern constitutes the seed of the system. 
   * The first generation is created by applying the above rules simultaneously to every cell in the seed, live or dead; births and deaths occur simultaneously, and the discrete moment at which this happens is sometimes called a tick.
   * Each generation is a pure function of the preceding one.
@@ -39,7 +41,7 @@ The universe of the Game of Life is an infinite, two-dimensional orthogonal grid
  * Use a common, cross-platform language
  * Keep core logic separate from the UI.
  * Be able to save and load initial conditions to a file 
- 
+
 ## Additional Specifications 
 **These are additional specifications for my particular implementation of this problem.**
 
@@ -47,7 +49,7 @@ The universe of the Game of Life is an infinite, two-dimensional orthogonal grid
  * Initially, the program will open in *"Initialization Mode"*, sized to a default size, 
  *  When the user clicks the  "Run" control the program switches to *"Run Mode"*
  *  If the number of cells goes to zero, or the stop button is clicked, the game returns to *"Initialization Mode"* 
- 
+
 
 **Main Window**
 Program will open in a classic window, containing the following elements
@@ -56,6 +58,7 @@ Program will open in a classic window, containing the following elements
 * Basic Control elements to Run, Stop, Clear game field, quit the protram
 * File Save Control Elements: Save, Load.
   
+
 **Initialization Mode**
 
  * User can select the number of cells on screen, 
@@ -67,12 +70,13 @@ Program will open in a classic window, containing the following elements
    * Number of cells alive
    * Iterations (seconds?)
    
+
 **Run Mode**
 
  * When the system enters *"Run Mode"* the "Run" control legend changes to "Stop", and  the game begins iterating.
  * At each step a new status for each cell of the array is calculated based on the number of neighbors as given in rules. 
  * After the core logic updates the cells, each cell that changed will  be redrawn, and the statistics for number of live cells will be updated.
-  
+
 ## File Save Format
 
 I only needed a simple file format, and files are probably not very large.
@@ -101,12 +105,34 @@ Sample File:
 **Python:**
   * See [Python/PythonDevnotes.md](Python/PythonDevNotes.md). Requires Python 3.10 or higher
 
+
+# Other Implementations
+One of the challenges that I set for myself on this project was to not use AI or look up
+any other implementations of Conways Game of Life.  Having succeeded at that, I will now
+turn to looking at a few other implementations to see what I might learn
+
+ * Michael Abrash [phatcode.net:Chapter 17 The Game of Life](https://www.phatcode.net/res/224/files/html/ch17/17-01.html)
+   This is a C++ fairly simple implementation
+ * [ahuth-Conway4](https://github.com/ahuth/conway4)
+   
+## StackOverflow Discussions
+ * [Optimizing Conway's Game of Life](https://stackoverflow.com/questions/40485/optimizing-conways-game-of-life)
+ * [Unexpected Results In Conwy's Game  of Life](https://stackoverflow.com/questions/21532966/unexpected-results-in-conways-game-of-life)
+
+   
+## Advanced Implementations
+Advanced implementations make use of better data structures in order to turn the problem 
+inside out and gain real performance gains.
+
+ * [Hashlfe](https://en.wikipedia.org/wiki/Hashlife) - 
+ * [XLife](https://conwaylife.com/wiki/Xlife)
+
    
 # Attributions
 ## Images
 
 **From the Wikipedia Page for Conway's Game of life:**
-  
+
 * Trefoil Knot GIF:  [By Raphael Augusto - Own work, CC BY-SA 4.0](https://commons.wikimedia.org/w/index.php?curid=52336285)
 * Glider Cell Image: [Gospers Glider Gun](https://en.wikipedia.org/wiki/File:Game_of_life_glider_gun.svg)
 
